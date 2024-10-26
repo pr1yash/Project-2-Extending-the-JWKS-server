@@ -1,0 +1,31 @@
+{
+  "name": "project2_javascript",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "test": "mocha",
+    "coverage": "nyc mocha",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.0",
+    "jsonwebtoken": "^9.0.2",
+    "node-jose": "^2.2.0",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.11.0",
+    "chai": "^5.1.1",
+    "eslint": "^9.11.0",
+    "globals": "^15.9.0",
+    "mocha": "^10.7.3",
+    "nyc": "^17.1.0",
+    "supertest": "^7.0.0",
+    "typescript-eslint": "^8.6.0"
+  }
+}
