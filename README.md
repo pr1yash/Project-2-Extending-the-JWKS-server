@@ -37,15 +37,17 @@ This project extends a basic JWKS (JSON Web Key Set) server by integrating a **S
 1.  Clone the repository:
     
 
-    `git clone <repository-url>
-    cd <repository-directory>` 
+    `git clone https://github.com/pr1yash/Project-2-Extending-the-JWKS-server.git
+cd Project-2-Extending-the-JWKS-server` 
     
 2.  Install dependencies:
     
     
     `npm install` 
-    
-3.  Run the server:
+3. Install Mocha and c8 (if not already installed):
+	
+	`npm install mocha c8 --save-dev`  
+4.  Run the server:
     
    
     `node server.js` 
@@ -93,6 +95,14 @@ The server will start on `http://localhost:8080`.
     -   Enforces POST method on `/auth` and GET method on `/jwks.json`.
 
 ## Testing
+The project uses **Mocha** for test execution and **c8** for generating code coverage reports to verify the performance and reliability of the JWT authentication server.
+
+#### Installation
+
+Make sure the required tools are installed by running:
+
+
+`npm install mocha c8 --save-dev`
 
 1.  Run the test suite:
     
