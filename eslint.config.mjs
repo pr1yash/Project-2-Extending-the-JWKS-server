@@ -5,16 +5,16 @@ export default [
   {
     languageOptions: {
       globals: {
-        ...globals.node,    // Include Node.js globals
-        ...globals.mocha,    // Add Mocha globals (describe, before, it, etc.)
+        ...globals.node,
+        ...globals.mocha,
       },
     },
   },
   pluginJs.configs.recommended,
   {
-    files: ["**/*.test.js", "**/*.spec.js"], // Apply to your test files
+    files: ["**/*.test.js", "**/*.spec.js"],
     languageOptions: {
-      globals: globals.mocha,  // Ensure Mocha globals are recognized in test files
+      globals: globals.mocha,
     },
   },
 ];

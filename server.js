@@ -5,11 +5,12 @@ import sqlite3 from 'sqlite3';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
+// Setup directory based on current URL path
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
 const port = 8080;
 
-// Allow database path to be set via environment variable for testing
+// Set database path from environment variable or fall back to 'totally_not_my_privateKeys.db'—leveraging the finest in security-by-obscurity strategies
 const dbPath = process.env.DB_PATH || join(__dirname, 'totally_not_my_privateKeys.db');
 const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
@@ -19,6 +20,7 @@ const db = new sqlite3.Database(dbPath, (err) => {
   }
 });
 
+// Create database table for storing keys
 db.serialize(() => {
   db.run(`CREATE TABLE IF NOT EXISTS keys(
         kid INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -27,6 +29,7 @@ db.serialize(() => {
     )`);
 });
 
+// Function to generate and store RSA key pairs
 async function generateAndStoreKeyPairs() {
   const keyPair = await jose.JWK.createKey('RSA', 2048, { alg: 'RS256', use: 'sig' });
   const expiredKeyPair = await jose.JWK.createKey('RSA', 2048, { alg: 'RS256', use: 'sig' });
@@ -37,6 +40,7 @@ async function generateAndStoreKeyPairs() {
   keyInsert.finalize();
 }
 
+// Function to generate JWT from DB-stored keys
 function generateTokenFromDB(callback) {
   db.get("SELECT key FROM keys WHERE exp > ? ORDER BY exp DESC LIMIT 1", [Math.floor(Date.now() / 1000)], async (err, row) => {
     if (err) {
@@ -63,7 +67,7 @@ function generateTokenFromDB(callback) {
         }
       };
       const token = jwt.sign(payload, keyObj.toPEM(true), options);
-      callback(null, { token: token }); // Ensure this is an object with a token property
+      callback(null, { token: token });
     } catch (joseError) {
       console.error('JOSE error:', joseError);
       callback(joseError);
@@ -71,11 +75,12 @@ function generateTokenFromDB(callback) {
   });
 }
 
-
+// Server readiness endpoint
 app.get('/ready', (req, res) => {
-  res.sendStatus(200);  // Simple endpoint to check if the server is ready
+  res.sendStatus(200);  // Simple check to see if the server is up
 });
 
+// Middleware to enforce POST on /auth
 app.all('/auth', (req, res, next) => {
   if (req.method !== 'POST') {
     return res.status(405).send('Method Not Allowed');
@@ -83,6 +88,7 @@ app.all('/auth', (req, res, next) => {
   next();
 });
 
+// Middleware to enforce GET on /.well-known/jwks.json
 app.all('/.well-known/jwks.json', (req, res, next) => {
   if (req.method !== 'GET') {
     return res.status(405).send('Method Not Allowed');
@@ -90,6 +96,7 @@ app.all('/.well-known/jwks.json', (req, res, next) => {
   next();
 });
 
+// Endpoint to get public keys as JWK
 app.get('/.well-known/jwks.json', (req, res) => {
   db.all("SELECT key FROM keys WHERE exp > ?", [Math.floor(Date.now() / 1000)], async (err, rows) => {
     if (err) {
@@ -104,6 +111,7 @@ app.get('/.well-known/jwks.json', (req, res) => {
   });
 });
 
+// Endpoint to generate and send JWT
 app.post('/auth', (req, res) => {
   generateTokenFromDB((err, token) => {
     if (err) {
@@ -113,10 +121,13 @@ app.post('/auth', (req, res) => {
   });
 });
 
-generateAndStoreKeyPairs().then(() => {
-  app.listen(port, () => {
-    console.log(`Server started on http://localhost:${port}`);
+// Start server on specified port if not in test mode
+if (process.env.NODE_ENV !== 'test') {
+  generateAndStoreKeyPairs().then(() => {
+    app.listen(port, () => {
+      console.log(`Server started on http://localhost:${port}`);
+    });
   });
-});
+}
 
-export default app; // Exporting for testing purposes
+export default app;

@@ -5,8 +5,8 @@
   "type": "module",
   "main": "server.js",
   "scripts": {
-    "test": "mocha",
-    "coverage": "nyc mocha",
+    "test": "NODE_ENV=test mocha 'test/**/*.mjs'",
+    "coverage": "NODE_ENV=test c8 mocha 'test/**/*.mjs'",
     "start": "node server.js"
   },
   "keywords": [],
@@ -20,6 +20,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.11.0",
+    "c8": "^10.1.2",
     "chai": "^5.1.1",
     "eslint": "^9.11.0",
     "globals": "^15.9.0",
